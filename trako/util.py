@@ -30,7 +30,7 @@ class Util:
 
         distances.append(dist)
 
-    if len(distances) == 0:
+    if not distances:
       return (0,0,0,0),[]
 
     return (np.min(distances), np.max(distances), np.mean(distances), np.std(distances)), distances
@@ -163,14 +163,12 @@ class Util:
 
         properties.append(numpy_support.vtk_to_numpy(arr))
 
-    out = {
-      'points': points,
-      'lines': lines,
-      'number_of_streamlines': number_of_streamlines,
-      'scalar_names': scalar_names,
-      'scalars': scalars,
-      'property_names': property_names,
-      'properties': properties
+    return {
+        'points': points,
+        'lines': lines,
+        'number_of_streamlines': number_of_streamlines,
+        'scalar_names': scalar_names,
+        'scalars': scalars,
+        'property_names': property_names,
+        'properties': properties,
     }
-
-    return out

@@ -132,10 +132,10 @@ class Runner:
       return None
 
     if not compressed:
-      compressed = input + '_compressed'+str(tol_error)+'.dpy'
+      compressed = f'{input}_compressed{str(tol_error)}.dpy'
 
     if not restored:
-      restored = input + '_restored'+str(tol_error)+'.tck'
+      restored = f'{input}_restored{str(tol_error)}.tck'
 
     original = os.path.join(workingdir, input)
 
@@ -149,7 +149,7 @@ class Runner:
 
       loaded_original = nib.streamlines.load(original, lazy_load=False)
       original_streamlines = loaded_original.streamlines
-      
+
       # parameters from Presseau15 are 0.01 and inf
       c_streamlines = compress_streamlines(original_streamlines, 
                                            tol_error=tol_error, 
@@ -188,7 +188,7 @@ class Runner:
     #
     # calculate errors
     #
-    stats = compressed + '_stats'+str(tol_error)+'.p'
+    stats = f'{compressed}_stats{str(tol_error)}.p'
     if not os.path.exists(os.path.join(workingdir, stats)) or force:
 
       statsdata = Runner.error_per_streamlines(original_streamlines, restored_streamlines)
@@ -205,7 +205,7 @@ class Runner:
 
 
     [c_time, d_time, sizestatsdata, (min_e, max_e, mean_e, std_e), (end_min_e, end_max_e, end_mean_e, end_std_e)] = \
-      statsdata
+        statsdata
 
     if verbose:
       print('Times', c_time, d_time)
@@ -224,22 +224,17 @@ class Runner:
     '''
     '''
 
-    AGIPIPELINE = '../../EXTRAS/node_modules/gltf-pipeline/bin/'
-
     if not input.endswith('vtp') and not input.endswith('vtk'):
       # we need to convert
       print('Invalid format')
       return None
 
-    configstr = ''
-    if config:
-      configstr = '_config'+config['name']
-
+    configstr = '_config'+config['name'] if config else ''
     if not compressed:
-      compressed = input + '_compressed'+str(configstr)+'.tko'
+      compressed = f'{input}_compressed{configstr}.tko'
 
     if not restored:
-      restored = input + '_restored'+str(configstr)+'.vtp'
+      restored = f'{input}_restored{configstr}.vtp'
 
     original = os.path.join(workingdir, input)
 
@@ -282,7 +277,7 @@ class Runner:
     #
     # calculate errors
     #
-    stats = compressed + '_stats'+str(configstr)+'.p'
+    stats = f'{compressed}_stats{configstr}.p'
     if not os.path.exists(os.path.join(workingdir, stats)) or force:
 
       original_data = TKO.Util.loadvtp(original)
@@ -315,14 +310,17 @@ class Runner:
     #
     if binary:
       # print('yes')
-      binary_file = compressed + '.glb'
+      binary_file = f'{compressed}.glb'
       if not os.path.exists(os.path.join(workingdir, binary_file)) or force:
         # print('run')
-        os.system('cp ' + os.path.join(workingdir, compressed) + ' /tmp/out.gltf')
-        os.system(AGIPIPELINE+'gltf-pipeline.js -i ' + '/tmp/out.gltf' + \
-          ' -o ' + os.path.join(workingdir, binary_file) + ' --keepUnusedElements')
-        # print(AGIPIPELINE+'gltf-pipeline.js -i ' + os.path.join(workingdir, compressed) + \
-          # ' -o ' + os.path.join(workingdir, binary_file) + ' --keepUnusedElements')
+        os.system(f'cp {os.path.join(workingdir, compressed)} /tmp/out.gltf')
+        AGIPIPELINE = '../../EXTRAS/node_modules/gltf-pipeline/bin/'
+
+        os.system(
+            f'{AGIPIPELINE}gltf-pipeline.js -i /tmp/out.gltf -o {os.path.join(workingdir, binary_file)} --keepUnusedElements'
+        )
+            # print(AGIPIPELINE+'gltf-pipeline.js -i ' + os.path.join(workingdir, compressed) + \
+              # ' -o ' + os.path.join(workingdir, binary_file) + ' --keepUnusedElements')
 
 
       binary_sizestatsdata = Runner.sizestats(os.path.join(workingdir, original), os.path.join(workingdir, binary_file))
@@ -331,13 +329,13 @@ class Runner:
       statsdata.append(binary_sizestatsdata)
 
       [c_time, d_time, sizestatsdata, (min_e, max_e, mean_e, std_e), (end_min_e, end_max_e, end_mean_e, end_std_e), binary_sizestatsdata] = \
-        statsdata
+          statsdata
 
     else:
 
       binary_sizestatsdata = (0,0,0,0)
       [c_time, d_time, sizestatsdata, (min_e, max_e, mean_e, std_e), (end_min_e, end_max_e, end_mean_e, end_std_e)] = \
-        statsdata
+          statsdata
 
     if verbose:
       print('Times', c_time, d_time)
@@ -357,7 +355,7 @@ class Runner:
     '''
     '''
 
-    QFIB = '/home/'+getpass.getuser()+'/Projects/qfib/qfib'
+    QFIB = f'/home/{getpass.getuser()}/Projects/qfib/qfib'
 
     if not input.endswith('tck'):
       # we need to convert
@@ -366,26 +364,21 @@ class Runner:
 
 
     if not compressed:
-      compressed = input + '_compressed'+str(bits)+'.qfib'
+      compressed = f'{input}_compressed{str(bits)}.qfib'
 
     if not restored:
-      restored = input + '_restored'+str(bits)+'.tck'
+      restored = f'{input}_restored{str(bits)}.tck'
 
     original = os.path.join(workingdir, input)
 
-    #
-    # compression
-    #
-    bitflag = ''
-    if bits==16:
-      bitflag = ' -b'
+    bitflag = ' -b' if bits==16 else ''
     c_time = -1
     if not os.path.exists(os.path.join(workingdir, compressed)) or force:
       # compress again!
-      logfile = os.path.join(workingdir, compressed+'.log')
+      logfile = os.path.join(workingdir, f'{compressed}.log')
       t0 = time.time()
-      cmd = QFIB+' '+original+' '+compressed+' -d -c -e -n'+bitflag+' > '+logfile
-      os.system('cd '+workingdir+'; '+cmd)
+      cmd = f'{QFIB} {original} {compressed} -d -c -e -n{bitflag} > {logfile}'
+      os.system(f'cd {workingdir}; {cmd}')
       c_time = time.time()-t0
 
       if verbose:
@@ -398,8 +391,8 @@ class Runner:
     if not os.path.exists(os.path.join(workingdir, restored)) or force:
       # restore again!
       t0 = time.time()
-      cmd = QFIB+' '+compressed+' '+restored
-      os.system('cd '+workingdir+'; '+cmd)
+      cmd = f'{QFIB} {compressed} {restored}'
+      os.system(f'cd {workingdir}; {cmd}')
       d_time = time.time()-t0
 
       if verbose:
@@ -409,7 +402,7 @@ class Runner:
     #
     # calculate errors
     #
-    stats = compressed + '_stats'+str(bits)+'.p'
+    stats = f'{compressed}_stats{str(bits)}.p'
     if not os.path.exists(os.path.join(workingdir, stats)) or force:
       original_data = nib.streamlines.load(os.path.join(workingdir, original), lazy_load=False)
       original_streamlines = original_data.streamlines
@@ -433,7 +426,7 @@ class Runner:
 
 
     [c_time, d_time, sizestatsdata, (min_e, max_e, mean_e, std_e), (end_min_e, end_max_e, end_mean_e, end_std_e)] = \
-      statsdata
+        statsdata
 
     if verbose:
       print('Times', c_time, d_time)

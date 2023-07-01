@@ -12,6 +12,7 @@ import os
 
 def convert(input, output, force=True, only_points=False):
 
+  current_fiber_id = 0
   # print('Converting', len(input), 'files.')
 
   for file_i in input:
@@ -57,11 +58,11 @@ def convert(input, output, force=True, only_points=False):
     scalar_names = ['']*10#np.empty((10,20),dtype=np.byte)
 
     for i in range(number_of_scalars):
-        arr_name = pointdata.GetArrayName(i)
-        scalar_names[i] = str.encode(arr_name)[0:20]
-        
-        # print('Loading Scalar', arr_name)
-        scalars.append(numpy_support.vtk_to_numpy(pointdata.GetArray(i)))
+      arr_name = pointdata.GetArrayName(i)
+      scalar_names[i] = str.encode(arr_name)[:20]
+
+      # print('Loading Scalar', arr_name)
+      scalars.append(numpy_support.vtk_to_numpy(pointdata.GetArray(i)))
 
 
     #
@@ -73,26 +74,25 @@ def convert(input, output, force=True, only_points=False):
     property_names =['']*10# np.empty((10,20),dtype=np.byte)
 
     for i in range(number_of_properties):
-        arr_name = celldata.GetArrayName(i)
-        property_names[i] = str.encode(arr_name)[0:20]
-        
-        # print('Loading Property', arr_name)
-        current_array = numpy_support.vtk_to_numpy(celldata.GetArray(i))
+      arr_name = celldata.GetArrayName(i)
+      property_names[i] = str.encode(arr_name)[:20]
 
-        if (current_array.ndim > 1):
-            # print('  Warning: Combining Property', arr_name, '(mean)')
-            current_array = np.mean(current_array)
-            continue
-        properties[:,i] = current_array
-        
+      # print('Loading Property', arr_name)
+      current_array = numpy_support.vtk_to_numpy(celldata.GetArray(i))
 
-        
+      if (current_array.ndim > 1):
+          # print('  Warning: Combining Property', arr_name, '(mean)')
+          current_array = np.mean(current_array)
+          continue
+      properties[:,i] = current_array
+
+
+
     #
     # convert to streamlines
     #
     streamlines = []
     i = 0
-    current_fiber_id = 0
     line_length = 0
     if len(lines) > 0:
       line_length = lines[i]
@@ -100,30 +100,30 @@ def convert(input, output, force=True, only_points=False):
 
     while (line_index<number_of_streamlines):
     #     print(line_index,'start',i+1,'len',line_length)
-        
+
         current_line = lines[i+1+line_index:i+1+line_length+line_index]
         current_points = np.zeros((line_length, 3), dtype=np.float32)
         current_scalars = np.zeros((line_length, number_of_scalars), dtype=np.float32)
         current_properties = np.zeros((number_of_properties), dtype=np.float32)
     #     current_properties = np.zeros()
-        
+
         for p_i, p in enumerate(current_line):
             current_points[p_i] = points[p]
             current_scalars[p_i] = scalars[p]  
-        
+
         current_properties = properties[line_index]
-        
+
         if only_points:
             streamlines.append((current_points, None, None))
         else:
             streamlines.append((current_points, current_scalars, current_properties))
-        
+
         i += line_length
         line_index += 1
         if line_index < number_of_streamlines:
             line_length = lines[i+line_index]
-            
-            
+
+
     #
     # create header
     #

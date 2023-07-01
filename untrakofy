@@ -16,10 +16,7 @@ def untrakofy(input, output, verbose=True):
     w.SetInputData(polydata)
     w.Update()
 
-    restoredsize = os.path.getsize(output)
-
-    return restoredsize
-
+    return os.path.getsize(output)
   else:
     print('ERROR: Only writing .vtp files is currently supported.')
     sys.exit(2)

@@ -182,24 +182,21 @@ class RepeatPruner(BasePruner):
         https://github.com/pfnet/optuna/blob/master/optuna/pruners/median.py
     """
     def prune(self, storage, study_id, trial_id, step):
-        # type: (BaseStorage, int, int, int) -> bool
-        """Please consult the documentation for :func:`BasePruner.prune`."""
+      # type: (BaseStorage, int, int, int) -> bool
+      """Please consult the documentation for :func:`BasePruner.prune`."""
 
-        n_trials = storage.get_n_trials(study_id, TrialState.COMPLETE)
+      n_trials = storage.get_n_trials(study_id, TrialState.COMPLETE)
 
-        if n_trials == 0:
-            return False
+      if n_trials == 0:
+          return False
 
-        trials = storage.get_all_trials(study_id)
-        assert storage.get_n_trials(study_id, TrialState.RUNNING)
-        assert trials[-1].state == optuna.structs.TrialState.RUNNING
-        completed_params_list = \
-            [t.params for t in trials \
-             if t.state == optuna.structs.TrialState.COMPLETE]
-        if trials[-1].params in completed_params_list:
-            return True
-
-        return False
+      trials = storage.get_all_trials(study_id)
+      assert storage.get_n_trials(study_id, TrialState.RUNNING)
+      assert trials[-1].state == optuna.structs.TrialState.RUNNING
+      completed_params_list = \
+              [t.params for t in trials \
+               if t.state == optuna.structs.TrialState.COMPLETE]
+      return trials[-1].params in completed_params_list
 
 
 import collections
@@ -308,32 +305,30 @@ class GridSampler(BaseSampler):
     def sample_independent(self, study, trial, param_name, param_distribution):
         # type: (Study, FrozenTrial, str, BaseDistribution) -> Any
 
-        if param_name not in self._search_space:
-            message = 'The parameter name, {}, is not found in the given grid.'.format(param_name)
-            raise ValueError(message)
+      if param_name not in self._search_space:
+        message = f'The parameter name, {param_name}, is not found in the given grid.'
+        raise ValueError(message)
 
-        grid_id = trial.system_attrs['grid_id']
-        param_value = self._all_grids[grid_id][self._param_names.index(param_name)]
-        contains = param_distribution._contains(param_distribution.to_internal_repr(param_value))
-        if not contains:
-            raise ValueError('The value `{}` is out of range of the parameter `{}`. Please make '
-                             'sure the search space of the `GridSampler` only contains values '
-                             'consistent with the distribution specified in the objective '
-                             'function. The distribution is: `{}`.'
-                             .format(param_value, param_name, param_distribution))
-
+      grid_id = trial.system_attrs['grid_id']
+      param_value = self._all_grids[grid_id][self._param_names.index(param_name)]
+      if contains := param_distribution._contains(
+          param_distribution.to_internal_repr(param_value)):
         return param_value
+      else:
+        raise ValueError(
+            f'The value `{param_value}` is out of range of the parameter `{param_name}`. Please make sure the search space of the `GridSampler` only contains values consistent with the distribution specified in the objective function. The distribution is: `{param_distribution}`.'
+        )
 
     @staticmethod
     def _check_value(param_name, param_value):
-        # type: (str, Any) -> None
+      # type: (str, Any) -> None
 
-        if param_value is None or isinstance(param_value, (str, int, float, bool)):
-            return
+      if param_value is None or isinstance(param_value, (str, int, float, bool)):
+          return
 
-        raise ValueError('{} contains a value with the type of {}, which is not supported by '
-                         '`GridSampler`. Please make sure a value is `str`, `int`, `float`, `bool`'
-                         ' or `None`.'.format(param_name, type(param_value)))
+      raise ValueError(
+          f'{param_name} contains a value with the type of {type(param_value)}, which is not supported by `GridSampler`. Please make sure a value is `str`, `int`, `float`, `bool` or `None`.'
+      )
 
     def _get_unvisited_grid_ids(self, study):
         # type: (Study) -> List[int]

@@ -26,108 +26,107 @@ class Sprinter:
         
     #     if r != 'default':
     #         continue
-        
-        tko_sizes = tkoruns[r][0]
-        tko_errors = tkoruns[r][1]
-        tko_stds = tkoruns[r][2]
-        tko_advstats = tkoruns[r][3]
 
-        if 0 in tko_sizes:
-            tko_sizes.remove(0)
-        if 0 in tko_errors:
-            tko_errors.remove(0)
-        if 0 in tko_stds:
-            tko_stds.remove(0)
+      tko_sizes = tkoruns[r][0]
+      tko_errors = tkoruns[r][1]
+      tko_stds = tkoruns[r][2]
+      tko_advstats = tkoruns[r][3]
 
-        run_name = r
-        if run_name == 'qbponly{bits}':
-          run_name = 'XYZ only'
-        elif run_name == 'qbi{bits}':
-          run_name = 'XYZ + Ind.'
-          run_name = 'TRAKO'
-        elif run_name == 'qbi_CL0_{bits}':
-          run_name = 'XYZ + Ind. Level 0'
-        elif run_name.endswith('binary'):
-          run_name = 'XYZ + Ind. (Binary)'
-          run_name = 'TRAKO (Binary)'
-        elif run_name == 'qfib (8bit)':
-          run_name = 'qfib (8bit)~\\cite{mercier2020qfib}'
-        elif run_name == 'qfib (16bit)':
-          run_name = 'qfib (16bit)~\\cite{mercier2020qfib}'
-        elif run_name == 'zfib':
-          run_name = 'zfib/Dipy~\\cite{presseau2015new}'
-        compressedsize = tko_sizes[selector]
+      if 0 in tko_sizes:
+          tko_sizes.remove(0)
+      if 0 in tko_errors:
+          tko_errors.remove(0)
+      if 0 in tko_stds:
+          tko_stds.remove(0)
 
-        c_ratio = (1-float(compressedsize)/float(originalsize))*100
-        c_factor = float(originalsize) / float(compressedsize)
+      run_name = r
+      if run_name == 'qbponly{bits}':
+        run_name = 'XYZ only'
+      elif run_name == 'qbi{bits}':
+        run_name = 'XYZ + Ind.'
+        run_name = 'TRAKO'
+      elif run_name == 'qbi_CL0_{bits}':
+        run_name = 'XYZ + Ind. Level 0'
+      elif run_name.endswith('binary'):
+        run_name = 'XYZ + Ind. (Binary)'
+        run_name = 'TRAKO (Binary)'
+      elif run_name == 'qfib (8bit)':
+        run_name = 'qfib (8bit)~\\cite{mercier2020qfib}'
+      elif run_name == 'qfib (16bit)':
+        run_name = 'qfib (16bit)~\\cite{mercier2020qfib}'
+      elif run_name == 'zfib':
+        run_name = 'zfib/Dipy~\\cite{presseau2015new}'
+      compressedsize = tko_sizes[selector]
+
+      c_ratio = (1-float(compressedsize)/float(originalsize))*100
+      c_factor = float(originalsize) / float(compressedsize)
 
 
+      if verbose:
+        print('-'*20)
+        print(r)
+        print('size', compressedsize)
+        print('ratio', c_ratio)
+        print('c_factor', c_factor)
+
+
+      min_e = tko_advstats[0][selector]
+      if verbose:
+        print('min_e', min_e)
+      max_e = tko_advstats[1][selector]
+      if verbose:
+        print('max_e', max_e)
+      if len(tko_errors) > 0:
+        mean_e = tko_errors[selector]
         if verbose:
-          print('-'*20)
-          print(r)
-          print('size', compressedsize)
-          print('ratio', c_ratio)
-          print('c_factor', c_factor)
+          print('mean_e', mean_e)
+        std = tko_stds[selector]
+        if verbose:
+          print('std', std)
+      else:
+        mean_e = 0.
+        std = 0.
+        if verbose:
+          print('mean_e', 0)
+        if verbose:
+          print('std',0)
 
+      e_min_e = tko_advstats[2][selector]
+      if verbose:
+        print('e_min_e', e_min_e)
+      e_max_e = tko_advstats[3][selector]
+      if verbose:
+        print('e_max_e', e_max_e)
+      e_mean_e = tko_advstats[4][selector]
+      if verbose:
+        print('e_mean_e', e_mean_e)
+      e_std = tko_advstats[5][selector]
+      if verbose:
+        print('e_std', e_std)
+      c_time = tko_advstats[6][selector]
+      if verbose:
+        print('c_time', c_time)
+      d_time = tko_advstats[7][selector]
+      if verbose:
+        print('d_time', d_time)
+      if verbose:
+        print('-'*20)
 
-        min_e = tko_advstats[0][selector]
-        if verbose:
-          print('min_e', min_e)
-        max_e = tko_advstats[1][selector]
-        if verbose:
-          print('max_e', max_e)
-        if len(tko_errors) > 0:
-          mean_e = tko_errors[selector]
-          if verbose:
-            print('mean_e', mean_e)
-          std = tko_stds[selector]
-          if verbose:
-            print('std', std)
-        else:
-          mean_e = 0.
-          std = 0.
-          if verbose:
-            print('mean_e', 0)
-          if verbose:
-            print('std',0)
+      latexline = ((((((((((((
+          ((f'~~~{run_name} & {str(np.round(compressedsize / 1000000.0, 2))}M & {str(np.round(c_ratio, 3))}'
+            + '\\%') + ' & ') + str(np.round(c_factor, 3)) + '$\\times$'
+      ) + ' & ') + str(np.round(min_e, 3)) + ' & ') + str(np.round(
+          max_e, 3)) + ' & ') + str(np.round(mean_e, 3)) + '$\\pm$') + str(
+              np.round(std, 3)) + ' & ') + str(np.round(e_min_e, 3)) + ' & ') +
+                       str(np.round(e_max_e, 3)) + ' & ') +
+                      str(np.round(e_mean_e, 3)) + '$\\pm$') +
+                     str(np.round(e_std, 3)) + ' & ') +
+                    str(np.round(c_time, 3)) + ' & ') +
+                   str(np.round(d_time, 3)) + '\\\\')
 
-        e_min_e = tko_advstats[2][selector]
-        if verbose:
-          print('e_min_e', e_min_e)
-        e_max_e = tko_advstats[3][selector]
-        if verbose:
-          print('e_max_e', e_max_e)
-        e_mean_e = tko_advstats[4][selector]
-        if verbose:
-          print('e_mean_e', e_mean_e)
-        e_std = tko_advstats[5][selector]
-        if verbose:
-          print('e_std', e_std)
-        c_time = tko_advstats[6][selector]
-        if verbose:
-          print('c_time', c_time)
-        d_time = tko_advstats[7][selector]
-        if verbose:
-          print('d_time', d_time)
-        if verbose:
-          print('-'*20)
+      print(latexline)
 
-        latexline = '~~~'+run_name+' & '+ \
-                    str(np.round(compressedsize/1000000.,2)) + 'M & '+ \
-                    str(np.round(c_ratio,3))+'\\%' + ' & '+ \
-                    str(np.round(c_factor,3))+'$\\times$' + ' & '+ \
-                    str(np.round(min_e,3)) + ' & '+ \
-                    str(np.round(max_e,3)) + ' & '+ \
-                    str(np.round(mean_e,3)) + '$\\pm$' + str(np.round(std,3)) + ' & '+ \
-                    str(np.round(e_min_e,3)) + ' & '+ \
-                    str(np.round(e_max_e,3)) + ' & '+ \
-                    str(np.round(e_mean_e,3)) + '$\\pm$' + str(np.round(e_std,3)) + ' & '+ \
-                    str(np.round(c_time,3)) + ' & '+ \
-                    str(np.round(d_time,3)) + '\\\\'
-
-        print(latexline)
-
-        '''
+      '''
         \\textbf{qfib-data} & 2,017M \\\\
                 ~~~qfib~\\cite{mercier2020qfib} & 410M & 8$\\times$ & 91.9 & 0.333 & 1.444 & 1.01$\\pm$2.22 & 0.333 & 1.444 & 1.01$\\pm$2.22 & 512.3 & 333.4\\
                 ~~~zfib/dipy~\\cite{presseau2015new} & 410M & 8$\times$ & 91.9 & 0.333 & 1.444 & 1.01$\\pm$2.22 & 0.333 & 1.444 & 1.01$\\pm$2.22 & 512.3 & 333.4\\
@@ -148,41 +147,45 @@ class Sprinter:
         
     #     if r != 'default':
     #         continue
-        
-        tko_sizes = tkoruns[r][0]
-        tko_errors = tkoruns[r][1]
-        tko_stds = tkoruns[r][2]
 
-        if 0 in tko_sizes:
-            tko_sizes.remove(0)
-        if 0 in tko_errors:
-            tko_errors.remove(0)
-        if 0 in tko_stds:
-            tko_stds.remove(0)
+      tko_sizes = tkoruns[r][0]
+      tko_errors = tkoruns[r][1]
+      tko_stds = tkoruns[r][2]
 
-        if len(tko_sizes) > longest:
-          # print('lo',r)
-          longest = len(tko_sizes)
-          longest_run = tko_sizes
-                
-        
-        tko_sizes_ = np.array(tko_sizes) / 1000000
+      if 0 in tko_sizes:
+          tko_sizes.remove(0)
+      if 0 in tko_errors:
+          tko_errors.remove(0)
+      if 0 in tko_stds:
+          tko_stds.remove(0)
+
+      if len(tko_sizes) > longest:
+        # print('lo',r)
+        longest = len(tko_sizes)
+        longest_run = tko_sizes
+
+
+      tko_sizes_ = np.array(tko_sizes) / 1000000
     #     plt.scatter(tko_sizes_, tko_errors, s = np.array(tko_stds)*1000, alpha=1, label='TRAKO ('+r+')')
-        size = 10
-        if r=='default':
-            size=70
+      size = 10
+      if r=='default':
+          size=70
 
-        run_name = r
-        if run_name == 'qbponly{bits}':
-          run_name = 'XYZ only'
-        elif run_name == 'qbi{bits}':
-          run_name = 'XYZ + Ind.'
-        elif run_name == 'qbi_CL0_{bits}':
-          run_name = 'XYZ + Ind. Level 0'
-        elif run_name.endswith('binary'):
-          run_name = 'XYZ + Ind. (Binary)'
-        plt.scatter(tko_sizes_, tko_errors, s = size, alpha=1, label='TRAKO ('+run_name+')')
-        plt.errorbar(tko_sizes_, tko_errors, tko_stds, fmt='|', alpha=.5)
+      run_name = r
+      if run_name == 'qbponly{bits}':
+        run_name = 'XYZ only'
+      elif run_name == 'qbi{bits}':
+        run_name = 'XYZ + Ind.'
+      elif run_name == 'qbi_CL0_{bits}':
+        run_name = 'XYZ + Ind. Level 0'
+      elif run_name.endswith('binary'):
+        run_name = 'XYZ + Ind. (Binary)'
+      plt.scatter(tko_sizes_,
+                  tko_errors,
+                  s=size,
+                  alpha=1,
+                  label=f'TRAKO ({run_name})')
+      plt.errorbar(tko_sizes_, tko_errors, tko_stds, fmt='|', alpha=.5)
 
 
     for x,s in enumerate(longest_run):
@@ -205,7 +208,7 @@ class Sprinter:
           continue
 
 
-      
+
       plt.text(x, y, txt)
 
 
@@ -218,7 +221,7 @@ class Sprinter:
       plt.errorbar(qfib_sizes_, qfib_errors, qfib_stds, fmt='|', color='black', alpha=.5)
       plt.ticklabel_format(style='plain', axis='both', scilimits=(0, 0))
 
-    import matplotlib.ticker as mticker    
+    import matplotlib.ticker as mticker
     plt.gca().xaxis.set_major_formatter(mticker.FormatStrFormatter('%d MB'))
 
     if ylim:
@@ -287,19 +290,14 @@ class Sprinter:
 
     return dpy_sizes, dpy_errors, dpy_stds, advancedstats
 
-  @staticmethod 
+  @staticmethod
   def parse_rundata(rundata, binary=False):
     '''
     '''
     c_time = rundata[0]
     d_time = rundata[1]
-    
-    if binary:
-      sizestats = rundata[-1]
-    else:
-      sizestats = rundata[2]
 
-
+    sizestats = rundata[-1] if binary else rundata[2]
     compressedsize = sizestats[1]
     minerror = rundata[3][0]
     maxerror = rundata[3][1]
@@ -370,72 +368,72 @@ class Sprinter:
   @staticmethod
   def run_trako(config, tko_files, tko_bits, coords_only=True, binary=False):
 
-      config_ = dict(config)
+    config_ = dict(config)
 
-      tko_sizes = [0]*len(tko_bits)
-      tko_errors = [0]*len(tko_bits)
-      tko_stds = [0]*len(tko_bits)
-      fails = [len(tko_files)]*len(tko_bits)
+    tko_sizes = [0]*len(tko_bits)
+    tko_errors = [0]*len(tko_bits)
+    tko_stds = [0]*len(tko_bits)
+    fails = [len(tko_files)]*len(tko_bits)
 
-      tko_minerror = [np.inf]*len(tko_bits)
-      tko_maxerror = [0]*len(tko_bits)
-      tko_e_minerror = [np.inf]*len(tko_bits)
-      tko_e_maxerror = [0]*len(tko_bits)
-      tko_e_meanerror = [0]*len(tko_bits)
-      tko_e_std = [0]*len(tko_bits)
+    tko_minerror = [np.inf]*len(tko_bits)
+    tko_maxerror = [0]*len(tko_bits)
+    tko_e_minerror = [np.inf]*len(tko_bits)
+    tko_e_maxerror = [0]*len(tko_bits)
+    tko_e_meanerror = [0]*len(tko_bits)
+    tko_e_std = [0]*len(tko_bits)
 
-      tko_ctime = [0]*len(tko_bits)
-      tko_dtime = [0]*len(tko_bits)
+    tko_ctime = [0]*len(tko_bits)
+    tko_dtime = [0]*len(tko_bits)
 
-      for j,f in enumerate(tko_files):
-          for i,b in enumerate(tko_bits):
+    for f in tko_files:
+      for i, b in enumerate(tko_bits):
 
-              config = dict(config_)
-              config['name'] = config['name'].replace('{bits}', str(b)) # change name
-              for c in config.keys():
-                  if c=='name':
-                      continue
-                  config[c]['quantization_bits'] = b # update bits for config
-              
-              try:
-                  rundata = runner.Runner.tko(f[0], f[1], config=config, coords_only=coords_only, force=False, binary=binary)
-              except:
-                  print('Failing..')
-                  fails[i] -= 1
-                  continue
+        config = dict(config_)
+        config['name'] = config['name'].replace('{bits}', str(b)) # change name
+        for c in config:
+          if c=='name':
+              continue
+          config[c]['quantization_bits'] = b # update bits for config
 
-              c_time, d_time, sizestats, compressedsize, minerror, maxerror, meanerror, stderror, e_minerror, e_maxerror, e_meanerror, e_stderror = Sprinter.parse_rundata(rundata, binary)
-
-
-
-              tko_minerror[i] = min(tko_minerror[i], minerror)
-              tko_maxerror[i] = max(tko_maxerror[i], maxerror)
-              tko_e_minerror[i] = min(tko_e_minerror[i], e_minerror)
-              tko_e_maxerror[i] = max(tko_e_maxerror[i], e_maxerror)
-              tko_e_meanerror[i] += e_meanerror
-              tko_e_std[i] += e_stderror
-
-              tko_sizes[i] += compressedsize
-              tko_errors[i] += meanerror
-              tko_stds[i] += stderror
-
-              tko_ctime[i] += c_time
-              tko_dtime[i] += d_time
-      #         tko_sizes.append(compressedsize)
-      #         tko_errors.append(meanerror)
-      #         tko_stds.append(stderror)
-
-      for i,b in enumerate(tko_bits):
-          if fails[i] == 0:
+        try:
+            rundata = runner.Runner.tko(f[0], f[1], config=config, coords_only=coords_only, force=False, binary=binary)
+        except:
+            print('Failing..')
+            fails[i] -= 1
             continue
-          tko_sizes[i] /= fails[i]#len(tko_files)
-          tko_errors[i] /= fails[i]#len(tko_files)
-          tko_stds[i] /= fails[i]#len(tko_files)
-          tko_e_std[i] /= fails[i]
-          tko_e_meanerror[i] /= fails[i]
-          
-      advancedstats = [tko_minerror, tko_maxerror, tko_e_minerror, tko_e_maxerror, \
+
+        c_time, d_time, sizestats, compressedsize, minerror, maxerror, meanerror, stderror, e_minerror, e_maxerror, e_meanerror, e_stderror = Sprinter.parse_rundata(rundata, binary)
+
+
+
+        tko_minerror[i] = min(tko_minerror[i], minerror)
+        tko_maxerror[i] = max(tko_maxerror[i], maxerror)
+        tko_e_minerror[i] = min(tko_e_minerror[i], e_minerror)
+        tko_e_maxerror[i] = max(tko_e_maxerror[i], e_maxerror)
+        tko_e_meanerror[i] += e_meanerror
+        tko_e_std[i] += e_stderror
+
+        tko_sizes[i] += compressedsize
+        tko_errors[i] += meanerror
+        tko_stds[i] += stderror
+
+        tko_ctime[i] += c_time
+        tko_dtime[i] += d_time
+    #         tko_sizes.append(compressedsize)
+    #         tko_errors.append(meanerror)
+    #         tko_stds.append(stderror)
+
+    for i,b in enumerate(tko_bits):
+        if fails[i] == 0:
+          continue
+        tko_sizes[i] /= fails[i]#len(tko_files)
+        tko_errors[i] /= fails[i]#len(tko_files)
+        tko_stds[i] /= fails[i]#len(tko_files)
+        tko_e_std[i] /= fails[i]
+        tko_e_meanerror[i] /= fails[i]
+
+    advancedstats = [tko_minerror, tko_maxerror, tko_e_minerror, tko_e_maxerror, \
                        tko_e_meanerror, tko_e_std, tko_ctime, tko_dtime]
 
-      return tko_sizes, tko_errors, tko_stds, advancedstats
+    return tko_sizes, tko_errors, tko_stds, advancedstats
 

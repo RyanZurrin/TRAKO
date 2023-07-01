@@ -7,6 +7,4 @@ class Decoder():
     '''
     '''
     
-    vtp = convert(tkoFile, verbose=verbose)
-
-    return vtp
+    return convert(tkoFile, verbose=verbose)

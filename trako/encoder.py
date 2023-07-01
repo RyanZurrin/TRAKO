@@ -28,6 +28,7 @@ class Encoder():
       raise Error('Invalid input format.')
 
     fibercluster = convert(polydata, config=config, verbose=verbose, coords_only=coords_only)
-    gltf = fibercluster2gltf(fibercluster, draco=draco, config=config, verbose=verbose)
-
-    return gltf
+    return fibercluster2gltf(fibercluster,
+                             draco=draco,
+                             config=config,
+                             verbose=verbose)
