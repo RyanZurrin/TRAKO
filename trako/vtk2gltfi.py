@@ -60,7 +60,7 @@ def convert(polydata, config=None, verbose=True, coords_only=False):
   cleaner.Update()
   polydata = cleaner.GetOutputDataObject(0)
   polydata.SetVerts(vtk.vtkCellArray())
-  
+
   points = numpy_support.vtk_to_numpy(polydata.GetPoints().GetData())
   lines = numpy_support.vtk_to_numpy(polydata.GetLines().GetData())
   number_of_streamlines = polydata.GetLines().GetNumberOfCells()
@@ -129,10 +129,7 @@ def convert(polydata, config=None, verbose=True, coords_only=False):
   ordered_scalars = []
   i = 0
   current_fiber_id = 0
-  line_length = 0
-  # sanity check
-  if len(lines) > 0:
-    line_length = lines[i]
+  line_length = lines[i] if len(lines) > 0 else 0
   line_index = 0
 
   lines_just_length = []

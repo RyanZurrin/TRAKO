@@ -6,13 +6,13 @@ import time
 
 
 def run(which):
-  SUBJECT = which+'/'#'103_reg_reg_outlier_removed/'
+  SUBJECT = f'{which}/'
   BLACKLIST = 'tracts_commissural'
   DATAFOLDER = '/home/fan/ADHD/cluster_atlas_01_00002_remove_outliers/'
   # DATAFOLDER = '/home/haehn/Dropbox/TKOTEST/'
-  DATAFOLDER_TKO = DATAFOLDER[:-1]+'_TKO/'
-  DATAFOLDER_RESTORED = DATAFOLDER[:-1]+'_RESTORED/'
-  STATSFOLDER = DATAFOLDER[:-1]+'_STATS/'
+  DATAFOLDER_TKO = f'{DATAFOLDER[:-1]}_TKO/'
+  DATAFOLDER_RESTORED = f'{DATAFOLDER[:-1]}_RESTORED/'
+  STATSFOLDER = f'{DATAFOLDER[:-1]}_STATS/'
   DATAFOLDER += SUBJECT
   DATAFOLDER_TKO += SUBJECT
   DATAFOLDER_RESTORED += SUBJECT
@@ -27,7 +27,7 @@ def run(which):
   t0 = time.time()
   for root, dirs, files in os.walk(DATAFOLDER):
       for name in files:
-          
+
           if name.endswith('.vtp'):
               input = os.path.join(root, name)
   #             if BLACKLIST in input:
@@ -35,7 +35,7 @@ def run(which):
   #             print(input)
               compressed = input.replace(DATAFOLDER, DATAFOLDER_TKO).replace('.vtp','.tko')
               restored = input.replace(DATAFOLDER, DATAFOLDER_RESTORED)
-              
+
               if not os.path.exists(os.path.dirname(compressed)):
                   os.makedirs(os.path.dirname(compressed))
               if not os.path.exists(os.path.dirname(restored)):
@@ -51,9 +51,9 @@ def run(which):
   #             except:
   #                 print('skipping', input)
   #                 continue
-              
+
               print(input,'done')
-          
+
   print('All set after',time.time()-t0,'seconds.')
 
   if not os.path.exists(STATSFOLDER):

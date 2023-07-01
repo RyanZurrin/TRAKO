@@ -180,7 +180,7 @@ def decode(gltf, accessor_id, reshape=True):
   magic = 'data:application/octet-stream;base64,'
   bytes = base64.b64decode(data.uri[len(magic):])
 
-  if bytes[0:5] != b'DRACO':
+  if bytes[:5] != b'DRACO':
     print('Did not find Draco compressed data..')
 
   bytestart = gltf.bufferViews[bufferview].byteOffset
@@ -200,6 +200,5 @@ def decode(gltf, accessor_id, reshape=True):
     number_of_elements = accessor.type
 
   datatype = gltfComponentType_to_npDataType[accessor.componentType]
-  draco_points_reshaped = np.array(draco_points, dtype=datatype).reshape(int(len(draco_points)/number_of_elements), number_of_elements)
-
-  return draco_points_reshaped
+  return np.array(draco_points, dtype=datatype).reshape(
+      int(len(draco_points) / number_of_elements), number_of_elements)

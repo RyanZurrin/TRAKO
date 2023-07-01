@@ -47,28 +47,26 @@ def convert(input, output, force=True, only_points=True):
 
     #   print('ERROR', 'No streamlines in file:', file_i)
     #   continue
-        
+
     #
     # convert to streamlines
     #
     streamlines = []
     i = 0
     current_fiber_id = 0
-    line_length = 0
-    if len(lines) > 0:
-      line_length = lines[i]
+    line_length = lines[i] if len(lines) > 0 else 0
     line_index = 0
 
     while (line_index<number_of_streamlines):
     #     print(line_index,'start',i+1,'len',line_length)
-        
+
         current_line = lines[i+1+line_index:i+1+line_length+line_index]
         current_points = np.zeros((line_length, 3), dtype=np.float32)
-      
+
         for p_i, p in enumerate(current_line):
             current_points[p_i] = points[p]
-        
-        
+
+
         streamlines.append(current_points)
 
 
@@ -76,8 +74,8 @@ def convert(input, output, force=True, only_points=True):
         line_index += 1
         if line_index < number_of_streamlines:
             line_length = lines[i+line_index]
-            
-            
+
+
     # #
     # # create header
     # #
